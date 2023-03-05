@@ -7,6 +7,8 @@ import com.udacity.vehicles.domain.Condition;
 import com.udacity.vehicles.domain.Location;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,7 +77,10 @@ public class CarService {
         if (car.getId() != null) {
             return repository.findById(car.getId())
                     .map(carToBeUpdated -> {
+                        carToBeUpdated.setModifiedAt(LocalDateTime.now());
+                        carToBeUpdated.setCondition(car.getCondition());
                         carToBeUpdated.setDetails(car.getDetails());
+                        carToBeUpdated.setPrice(priceClient.getPrice(car.getId()));
                         carToBeUpdated.setLocation(mapsClient.getAddress(car.getLocation()));
                         return repository.save(carToBeUpdated);
                     }).orElseThrow(CarNotFoundException::new);
@@ -120,11 +125,4 @@ public class CarService {
         return repository.save(foundCar.get().setOrderId(orderId));
     }
 
-//    public void removeOder(Long id) {
-//        Optional<Car> foundCar = repository.findById(id);
-//        if (foundCar.isEmpty()) {
-//            throw new CarNotFoundException();
-//        }
-//        repository.save(foundCar.get().setOrderId(0L));
-//    }
 }
